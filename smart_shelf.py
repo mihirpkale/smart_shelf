@@ -16,32 +16,39 @@ hx.set_reading_format("LSB", "MSB")
 hx.reset()
 hx.tare()
 
-THRESHHOLD_TRIGGER = 
+THRESHHOLD_TRIGGER = 3000
 LAST_HIGH_READING = 0
-LAST_ALERT_SENT
-
-def call_init(reading, curr_time):
-	print "Init function called"
-	LAST_HIGH_READING = reading
-	LAST_RELOAD_TIME = curr_time
-
-def call_smart_shelf_logic(reading):
-	if reading < THRESHHOLD_TRIGGER:
-		call_alert()
-	else:
-		if reading >= LAST_HIGH_READING:
-			curr_time = datetime.datetime.now()
-			call_init(reading, curr_time)
-			print "New load detected...resetting HIGH_LOAD and LOAD_TIME"
+LAST_RELOAD_TIME = 0
+LAST_ALERT_SENT = 0
+ZERO_RANGE = 200
 
 
-def main():
 
-	while True:
-    	try:
+def call_alert(message):
+	if message == "EXPIRED":
+		print "alert called for EXPIRY"
+	if message =="FINISHED":
+		print "alert called for FINISHED"
+
+
+
+
+while True:
+	try:
        		val = hx.get_weight(5)
         	print val
-		call_smart_shelf_logic(int(val))
+		if val > ZERO_RANGE:
+			if val < THRESHHOLD_TRIGGER:
+				call_alert("FINISHED")
+			elif val > LAST_HIGH_READING:
+				LAST_HIGH_READING = val
+				LAST_RELOAD_TIME = datetime.datetime.now()
+				print "NEW RELOAD READ AND RELOAD TIME IS....", +str(LAST_HIGH_READING)+"....."+str(LAST_RELOAD_TIME)
+			elif datetime.datetime.now() < (LAST_RELOAD_TIME + datetime.timedelta(days=SHELF_LIFE)):
+				call_alert("EXPIRED")
+		else: print "val is less than ZERO_RANGE, will do nothing"
+
+			
         	hx.power_down()
         	hx.power_up()
     	except (KeyboardInterrupt, SystemExit):

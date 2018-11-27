@@ -3,6 +3,7 @@ import time
 import sys
 from hx711 import HX711
 import datetime
+import boto3
 
 def cleanAndExit():
     print "Cleaning..."
@@ -29,13 +30,13 @@ hx.tare()
 ########
 
 #Weight below which a FINISHED alert will be generated
-THRESHHOLD_TRIGGER = 1200
+THRESHHOLD_TRIGGER =750
 
 
 # This is to bypass the error in the load cell
 # sometimes the load cell gives random values at zero load
 # adjust this value is required
-ZERO_RANGE = 250
+ZERO_RANGE = 150
 
 # keep these as they are
 LAST_HIGH_READING = 0
@@ -45,16 +46,20 @@ LAST_ALERT_SENT = datetime.datetime.now() - datetime.timedelta(hours=5)
 # These values are in Minutes, keep them small for demo
 # In real life they would be in hours
 # to convert to hours, change the paramter where-ever "timedelta" is called
-ALERT_FREQ = 2
-SHELF_LIFE = 1
+ALERT_FREQ = 3
+SHELF_LIFE = 2
 
-
+client = boto3.client("sns")
 
 def call_alert(message):
 	if message == "EXPIRED":
-		print "alert called for EXPIRY"
+		broadcastmsgstr = "Item at or near End of SHELF LIFE. Please replace Item"
+		print "Item at or near End of SHELF LIFE. Please replace Item"
 	if message =="FINISHED":
-		print "alert called for FINISHED"
+		broadcastmsgstr = "Item quantity BELOW REORDER LEVEL. Please REORDER Item"
+		print "Item Quantity BELOW REORDER LEVEL. Please REORDER Item"
+
+	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:SmartShelfAlerts')
 
 
 

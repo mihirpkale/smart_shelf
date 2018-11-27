@@ -30,13 +30,13 @@ hx.tare()
 ########
 
 #Weight below which a FINISHED alert will be generated
-THRESHHOLD_TRIGGER =750
+THRESHHOLD_TRIGGER =900
 
 
 # This is to bypass the error in the load cell
 # sometimes the load cell gives random values at zero load
 # adjust this value is required
-ZERO_RANGE = 150
+ZERO_RANGE = 100
 
 # keep these as they are
 LAST_HIGH_READING = 0
@@ -46,15 +46,15 @@ LAST_ALERT_SENT = datetime.datetime.now() - datetime.timedelta(hours=5)
 # These values are in Minutes, keep them small for demo
 # In real life they would be in hours
 # to convert to hours, change the paramter where-ever "timedelta" is called
-ALERT_FREQ = 3
-SHELF_LIFE = 2
+ALERT_FREQ = 2
+SHELF_LIFE = 1
 
 client = boto3.client("sns")
 
 def call_alert(message):
 	if message == "EXPIRED":
-		broadcastmsgstr = "Item at or near End of SHELF LIFE. Please replace Item"
-		print "Item at or near End of SHELF LIFE. Please replace Item"
+		broadcastmsgstr = "Item at or near USE BY Date. Please replace Item"
+		print "Item at or near USE BY Date. Please replace Item"
 	if message =="FINISHED":
 		broadcastmsgstr = "Item quantity BELOW REORDER LEVEL. Please REORDER Item"
 		print "Item Quantity BELOW REORDER LEVEL. Please REORDER Item"
@@ -74,7 +74,7 @@ while True:
 					LAST_ALERT_SENT = datetime.datetime.now()	
 					call_alert("FINISHED")
 				else: print "Last FINISHED alert was sent and have not crossed ALERT FREQ, so will not send"
-			elif val > LAST_HIGH_READING:
+			elif val >= LAST_HIGH_READING:
 				LAST_HIGH_READING = val
 				LAST_RELOAD_TIME = datetime.datetime.now()
 				print "NEW RELOAD READ AND RELOAD TIME IS...." +str(LAST_HIGH_READING)+"....."+str(LAST_RELOAD_TIME)
@@ -84,7 +84,7 @@ while True:
 					call_alert("EXPIRED")
 				else: print "LAST EXPIRED alert was sent and have not yet crossed ALERT FREQ, so will not send new Alert"	
 			else: print "No action required, current reading is higher than THRESHHOLD"
-		else: print "val is less than ZERO_RANGE, will do nothing"
+		else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
 
 			
         	hx.power_down()

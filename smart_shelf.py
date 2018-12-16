@@ -40,16 +40,16 @@ ZERO_RANGE = 100
 
 # keep these as they are
 LAST_HIGH_READING = 0
-LAST_RELOAD_TIME = datetime.datetime.now() - datetime.timedelta(hours=5)
+LAST_RELOAD_TIME = datetime.datetime.now() #- datetime.timedelta(hours=5)
 LAST_ALERT_SENT = datetime.datetime.now() - datetime.timedelta(hours=5)
 
 # These values are in Minutes, keep them small for demo
 # In real life they would be in hours
 # to convert to hours, change the paramter where-ever "timedelta" is called
-ALERT_FREQ = 2
+ALERT_FREQ = 0.75
 SHELF_LIFE = 1
 
-client = boto3.client("sns")
+#client = boto3.client("sns")
 
 def call_alert(message):
 	if message == "EXPIRED":
@@ -59,7 +59,7 @@ def call_alert(message):
 		broadcastmsgstr = "Item quantity BELOW REORDER LEVEL. Please REORDER Item"
 		print "Item Quantity BELOW REORDER LEVEL. Please REORDER Item"
 
-	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:SmartShelfAlerts')
+	#client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:SmartShelfAlerts')
 
 
 
@@ -71,22 +71,27 @@ while True:
 		if val > ZERO_RANGE:
 			if val < THRESHHOLD_TRIGGER:
 				if datetime.datetime.now() > (LAST_ALERT_SENT + datetime.timedelta(minutes=ALERT_FREQ)):
-					LAST_ALERT_SENT = datetime.datetime.now()	
+					LAST_ALERT_SENT = datetime.datetime.now()
 					call_alert("FINISHED")
 				else: print "Last FINISHED alert was sent and have not crossed ALERT FREQ, so will not send"
-			elif val >= LAST_HIGH_READING:
-				LAST_HIGH_READING = val
-				LAST_RELOAD_TIME = datetime.datetime.now()
-				print "NEW RELOAD READ AND RELOAD TIME IS...." +str(LAST_HIGH_READING)+"....."+str(LAST_RELOAD_TIME)
 			elif datetime.datetime.now() > (LAST_RELOAD_TIME + datetime.timedelta(minutes=SHELF_LIFE)):
 				if datetime.datetime.now() > (LAST_ALERT_SENT + datetime.timedelta(minutes=ALERT_FREQ)):
 					LAST_ALERT_SENT = datetime.datetime.now()
 					call_alert("EXPIRED")
-				else: print "LAST EXPIRED alert was sent and have not yet crossed ALERT FREQ, so will not send new Alert"	
+				else: print "LAST EXPIRED alert was sent and have not yet crossed ALERT FREQ, so will not send new Alert"
+			elif val >= LAST_HIGH_READING:
+				#last minute fix start
+				if LAST_RELOAD_TIME > (datetime.datetime.now() - datetime.timedelta(minutes=5)):
+					#which means we dont want to reset the LAST RELOAD TIME, it was set less than 5 minutes ago
+					print "New load sensed but last reload was less than 5 minutes ago so not re-setting last reload time"
+				else:
+					LAST_HIGH_READING = val
+					LAST_RELOAD_TIME = datetime.datetime.now()
+					print "NEW RELOAD READ AND RELOAD TIME IS...." +str(LAST_HIGH_READING)+"....."+str(LAST_RELOAD_TIME)
+				# last minute fix end
 			else: print "No action required, current reading is higher than THRESHHOLD"
 		else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
 
-			
         	hx.power_down()
         	hx.power_up()
     	except (KeyboardInterrupt, SystemExit):

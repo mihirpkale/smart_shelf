@@ -97,5 +97,5 @@ while True:
 			else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
        	hx.power_down()
        	hx.power_up()
-    except (KeyboardInterrupt, SystemExit):
-        	cleanAndExit()
+		except (KeyboardInterrupt, SystemExit):
+				cleanAndExit()

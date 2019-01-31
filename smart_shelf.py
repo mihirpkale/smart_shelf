@@ -95,8 +95,7 @@ while True:
 						print "NEW LOAD DETECTED at " +str(LAST_HIGH_READING)+".....at time..."+str(LAST_RELOAD_TIME)
 				else: print "No action required, current reading is higher than THRESHHOLD"
 			else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
-
-        	hx.power_down()
-        	hx.power_up()
+       	hx.power_down()
+       	hx.power_up()
     except (KeyboardInterrupt, SystemExit):
         	cleanAndExit()

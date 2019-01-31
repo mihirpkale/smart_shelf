@@ -40,8 +40,8 @@ ZERO_RANGE = 100
 
 # keep these as they are
 LAST_HIGH_READING = 0
-LAST_RELOAD_TIME = datetime.time(0,0,0)
-LAST_ALERT_SENT = datetime.time(0,0,0)
+LAST_RELOAD_TIME = datetime.min
+LAST_ALERT_SENT = datetime.min
 
 # These values are in Minutes, keep them small for demo
 # In real life they would be in hours
@@ -71,7 +71,7 @@ while True:
 			print "Current reading is...:" +str(val)
 			if val==0:
 				if datetime.datetime.now() > (LAST_RELOAD_TIME + datetime.timedelta(seconds=RESET_INTERVAL)):
-					LAST_RELOAD_TIME = datetime.time(0,0,0)
+					LAST_RELOAD_TIME = datetime.min
 					print "Resetting LAST_RELOAD_TIME, Shelf is empty for a considerable amount of time"
 			if val > ZERO_RANGE:
 				if val < THRESHHOLD_TRIGGER:

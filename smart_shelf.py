@@ -63,13 +63,13 @@ def call_alert(message):
 
 	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:smartShelfAlerts')
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(mqclient, userdata, flags, rc):
 	print("Connected with result code "+str(rc))
-	client.subscribe("t_level")
-	client.subscribe("alrt_freq")
-	client.subscribe("shelf_life")
+	mqclient.subscribe("t_level")
+	mqclient.subscribe("alrt_freq")
+	mqclient.subscribe("shelf_life")
 
-def on_message(client, userdata, msg):
+def on_message(mqclient, userdata, msg):
 	if msg.topic == "t_level":
 		THRESHHOLD_TRIGGER = int(msg.payload.decode())
 		#print("Yes!")
@@ -80,13 +80,13 @@ def on_message(client, userdata, msg):
 		SHELF_LIFE = int(msg.payload.decode())
 		#print("yay")
 
-client = mqtt.Client()
-client.connect("localhost",1883,60)
+mqclient = mqtt.Client()
+mqclient.connect("localhost",1883,60)
 
 while True:
 	try:
-			client.on_connect = on_connect
-			client.on_message = on_message
+			mqclient.on_connect = on_connect
+			mqclient.on_message = on_message
 			
 			val = max(0,int(hx.get_weight(5)))
 			print "Current reading is...:" +str(val)

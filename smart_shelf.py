@@ -4,6 +4,7 @@ import sys
 from hx711 import HX711
 import datetime
 import boto3
+import paho.mqtt.client as mqtt
 
 def cleanAndExit():
     print "Cleaning..."
@@ -62,11 +63,31 @@ def call_alert(message):
 
 	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:smartShelfAlerts')
 
+def on_connect(client, userdata, flags, rc):
+	print("Connected with result code "+str(rc))
+	client.subscribe("t_level")
+	client.subscribe("alrt_freq")
+	client.subscribe("shelf_life")
 
+def on_message(client, userdata, msg):
+	if msg.topic == "t_level":
+		THRESHHOLD_TRIGGER = int(msg.payload.decode())
+		#print("Yes!")
+	if msg.topic == "alrt_freq":
+		ALERT_FREQ = int(msg.payload.decode())
+		#print("No")
+	if msg.topic == "shelf_life":
+		SHELF_LIFE = int(msg.payload.decode())
+		#print("yay")
 
+client = mqtt.Client()
+cient.connect("localhost",1883,60)
 
 while True:
 	try:
+			client.on_connect = on_connect
+			client.on_message = on_message
+			
 			val = max(0,int(hx.get_weight(5)))
 			print "Current reading is...:" +str(val)
 			if val==0:

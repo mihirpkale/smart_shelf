@@ -30,7 +30,7 @@ hx.tare()
 ########
 
 #Weight below which a FINISHED alert will be generated
-THRESHHOLD_TRIGGER =400
+THRESHHOLD_TRIGGER =300
 
 
 # This is to bypass the error in the load cell
@@ -60,7 +60,7 @@ def call_alert(message):
 		broadcastmsgstr = "Item quantity BELOW REORDER LEVEL. Please REORDER Item"
 		print "Item Quantity BELOW Reorder Level. Please Order the Item again"
 
-	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:SmartShelfAlerts')
+	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:smartShelfAlerts')
 
 
 

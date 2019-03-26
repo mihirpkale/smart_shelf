@@ -81,7 +81,7 @@ def on_message(client, userdata, msg):
 		#print("yay")
 
 client = mqtt.Client()
-cient.connect("localhost",1883,60)
+client.connect("localhost",1883,60)
 
 while True:
 	try:

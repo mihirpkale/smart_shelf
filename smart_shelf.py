@@ -72,13 +72,13 @@ def on_connect(mqclient, userdata, flags, rc):
 def on_message(mqclient, userdata, msg):
 	if msg.topic == "t_level":
 		THRESHHOLD_TRIGGER = int(msg.payload.decode())
-		#print("Yes!")
+		print str(THRESHHOLD_TRIGGER)
 	if msg.topic == "alrt_freq":
 		ALERT_FREQ = int(msg.payload.decode())
-		#print("No")
+		print str(ALERT_FREQ)
 	if msg.topic == "shelf_life":
 		SHELF_LIFE = int(msg.payload.decode())
-		#print("yay")
+		print str(SHELF_LIFE)
 
 
 

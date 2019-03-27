@@ -124,7 +124,7 @@ while True:
 						LAST_HIGH_READING = val
 						print "No action required, current reading is higher than THRESHHOLD"
 				else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
-			mqclient.loop_forever()
+			mqclient.loop()
 			hx.power_down()
 			hx.power_up()
 	except (KeyboardInterrupt, SystemExit):

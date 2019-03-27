@@ -80,11 +80,12 @@ def on_message(mqclient, userdata, msg):
 		SHELF_LIFE = int(msg.payload.decode())
 		#print("yay")
 
-mqclient = mqtt.Client()
-mqclient.connect("localhost",1883,60)
+
 
 while True:
 	try:
+			mqclient = mqtt.Client()
+			mqclient.connect("localhost",1883,60)
 			mqclient.on_connect = on_connect
 			mqclient.on_message = on_message
 			

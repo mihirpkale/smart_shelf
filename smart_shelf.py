@@ -4,7 +4,6 @@ import sys
 from hx711 import HX711
 import datetime
 import boto3
-import paho.mqtt.client as mqtt
 
 def cleanAndExit():
     print "Cleaning..."
@@ -31,7 +30,7 @@ hx.tare()
 ########
 
 #Weight below which a FINISHED alert will be generated
-THRESHHOLD_TRIGGER =300
+THRESHHOLD_TRIGGER =650
 
 
 # This is to bypass the error in the load cell
@@ -63,31 +62,9 @@ def call_alert(message):
 
 	client.publish(Message=broadcastmsgstr, TopicArn='arn:aws:sns:us-east-1:893516415443:smartShelfAlerts')
 
-def on_connect(mqclient, userdata, flags, rc):
-	print("Connected with result code "+str(rc))
-	mqclient.subscribe("t_level")
-	mqclient.subscribe("alrt_freq")
-	mqclient.subscribe("shelf_life")
-
-def on_message(mqclient, userdata, msg):
-	if msg.topic == "t_level":
-		THRESHHOLD_TRIGGER = int(msg.payload.decode())
-		print str(THRESHHOLD_TRIGGER)
-	if msg.topic == "alrt_freq":
-		ALERT_FREQ = int(msg.payload.decode())
-		print str(ALERT_FREQ)
-	if msg.topic == "shelf_life":
-		SHELF_LIFE = int(msg.payload.decode())
-		print str(SHELF_LIFE)
-
-
 
 while True:
 	try:
-			mqclient = mqtt.Client()
-			mqclient.connect("localhost",1883,60)
-			mqclient.on_connect = on_connect
-			mqclient.on_message = on_message
 			
 			val = max(0,int(hx.get_weight(5)))
 			print "Current reading is...:" +str(val)
@@ -124,7 +101,6 @@ while True:
 						LAST_HIGH_READING = val
 						print "No action required, current reading is higher than THRESHHOLD"
 				else: print "Recorded weight is less than ZERO_RANGE, Shelf appears to be empty. No action required"
-			mqclient.loop()
 			hx.power_down()
 			hx.power_up()
 	except (KeyboardInterrupt, SystemExit):
